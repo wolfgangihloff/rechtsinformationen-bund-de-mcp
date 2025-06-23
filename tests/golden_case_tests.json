@@ -1,0 +1,314 @@
+[
+  {
+    "id": "case_2025_alt_bundestag",
+    "title": "Darf der alte Bundestag nach der Auflösung noch Grundgesetzänderungen beraten?",
+    "query": "Darf der alte Bundestag nach einer Wahl und seiner Auflösung durch den Bundespräsidenten noch zusammentreten, um Grundgesetzänderungen zu beschließen?",
+    "expected_case_reference": {
+      "ecli": "ECLI:DE:BVerfG:2025:es20250313.2bve000525",
+      "court": "Bundesverfassungsgericht",
+      "decision_date": "2025-03-13",
+      "case_number": "2 BvE 3/25",
+      "title": "Alt-Bundestag I"
+    },
+    "expected_summary": "Das Bundesverfassungsgericht stellte klar, dass es kein verfassungsmäßiges Recht gibt, das eine erneute Einberufung des alten Bundestages nach Auflösung grundsätzlich verbietet.",
+    "relevant_norms": [
+      "Art. 38 Abs. 1 Satz 2 GG",
+      "Art. 39 Abs. 3 GG",
+      "Art. 68 GG"
+    ],
+    "evaluation_criteria": [
+      "Findet BVerfG, 2 BvE 3/25",
+      "Demokratieprinzip korrekt eingeordnet",
+      "Tenor oder Gründe korrekt paraphrasiert"
+    ],
+    "description": "Prüft verfassungsrechtliche Abgrenzung zwischen altem und neuem Bundestag und Legitimität nach Auflösung.",
+    "difficulty": "high",
+    "tags": [
+      "verfassungsrecht",
+      "bundestag",
+      "organklage"
+    ]
+  },
+  {
+    "id": "case_dashcam",
+    "title": "Zulässigkeit von Dashcam-Aufnahmen im Zivilprozess",
+    "query": "Sind Dashcam-Aufnahmen als Beweismittel in einem Zivilprozess erlaubt?",
+    "expected_case_reference": {
+      "ecli": "ECLI:DE:BGH:2018:150518UVIIZR233.17.0",
+      "court": "Bundesgerichtshof",
+      "decision_date": "2018-05-15",
+      "case_number": "VI ZR 233/17",
+      "title": "Dashcam-Entscheidung"
+    },
+    "expected_summary": "Dashcam-Aufnahmen dürfen im Zivilprozess verwendet werden, trotz datenschutzrechtlicher Bedenken.",
+    "relevant_norms": [
+      "Art. 2 Abs. 1 GG",
+      "§ 6 BDSG a.F.",
+      "DSGVO (analog)"
+    ],
+    "evaluation_criteria": [
+      "Findet BGH VI ZR 233/17",
+      "Benennung als zulässig trotz Datenschutz",
+      "Abwägung Persönlichkeitsrecht vs. Beweisinteresse"
+    ],
+    "description": "Klassischer Fall zur Kollision von Datenschutz und Beweisführung im Zivilrecht.",
+    "difficulty": "medium",
+    "tags": [
+      "zivilrecht",
+      "datenschutz",
+      "beweisrecht"
+    ]
+  },
+  {
+    "id": "case_schimmel_mietrecht",
+    "title": "Beweislast bei Schimmel in Mietwohnungen",
+    "query": "Wer muss beweisen, ob Schimmel in der Mietwohnung vom Mieter oder vom Gebäude herrührt?",
+    "expected_case_reference": {
+      "ecli": "ECLI:DE:BGH:2007:180407UVIIIZR182.06.0",
+      "court": "Bundesgerichtshof",
+      "decision_date": "2007-04-18",
+      "case_number": "VIII ZR 182/06",
+      "title": "Schimmel und Beweislast"
+    },
+    "expected_summary": "Grundsätzlich muss der Vermieter beweisen, dass der Mieter für Schimmelbildung verantwortlich ist.",
+    "relevant_norms": [
+      "§ 535 BGB",
+      "§ 280 BGB"
+    ],
+    "evaluation_criteria": [
+      "Findet BGH VIII ZR 182/06",
+      "Benennung der Beweislastverteilung korrekt",
+      "Zusammenhang mit Mietmangel richtig dargestellt"
+    ],
+    "description": "Testet tenant-landlord logic und differenzierte Beweislastverteilung im Mietrecht.",
+    "difficulty": "medium",
+    "tags": [
+      "mietrecht",
+      "beweislast",
+      "zivilrecht"
+    ]
+  },
+  {
+    "id": "case_kopftuchverbot",
+    "title": "Kopftuchverbot für Lehrerinnen im öffentlichen Schuldienst",
+    "query": "Darf ein Bundesland Lehrerinnen das Tragen eines Kopftuchs verbieten?",
+    "expected_case_reference": {
+      "ecli": "ECLI:DE:BVerfG:2015:rs20150127.1bvr0471.10",
+      "court": "Bundesverfassungsgericht",
+      "decision_date": "2015-01-27",
+      "case_number": "1 BvR 471/10",
+      "title": "Kopftuch-Entscheidung"
+    },
+    "expected_summary": "Ein pauschales Kopftuchverbot ist verfassungswidrig, es bedarf konkreter Gefährdung des Schulfriedens.",
+    "relevant_norms": [
+      "Art. 4 Abs. 1 und 2 GG",
+      "Art. 33 Abs. 3 GG"
+    ],
+    "evaluation_criteria": [
+      "Findet BVerfG 1 BvR 471/10",
+      "Erkenntnis: Pauschalverbot unzulässig",
+      "Religionsfreiheit korrekt dargestellt"
+    ],
+    "description": "Testet Fähigkeit, Grundrechte im Kontext des öffentlichen Dienstes korrekt zu interpretieren.",
+    "difficulty": "medium",
+    "tags": [
+      "religionsfreiheit",
+      "schulrecht",
+      "grundrechte"
+    ]
+  },
+  {
+    "id": "case_buergergeld_sanktionen",
+    "title": "Sanktionen bei Bürgergeld/Hartz IV-Leistungen",
+    "query": "Dürfen bei Pflichtverstößen Leistungen beim Bürgergeld vollständig gestrichen werden?",
+    "expected_case_reference": {
+      "ecli": "ECLI:DE:BVerfG:2019:rs20191105.1bvl000716",
+      "court": "Bundesverfassungsgericht",
+      "decision_date": "2019-11-05",
+      "case_number": "1 BvL 7/16",
+      "title": "Sanktionen bei Hartz IV"
+    },
+    "expected_summary": "Das BVerfG entschied, dass vollständige Leistungskürzungen gegen das Grundgesetz verstoßen.",
+    "relevant_norms": [
+      "Art. 1 Abs. 1 GG",
+      "Art. 20 Abs. 1 GG",
+      "SGB II"
+    ],
+    "evaluation_criteria": [
+      "Findet BVerfG 1 BvL 7/16",
+      "Erkennt das Verbot vollständiger Sanktionen",
+      "Verweist auf Menschenwürde als Grundlage"
+    ],
+    "description": "Testfall für das Spannungsfeld zwischen Mitwirkungspflicht und Existenzsicherung.",
+    "difficulty": "medium",
+    "tags": [
+      "sozialrecht",
+      "grundrechte",
+      "menschenwürde"
+    ]
+  },
+  {
+    "id": "misconception_rental_law",
+    "title": "Rental Law Misconception - § 535 vs § 558 BGB",
+    "query": "BGB § 535 Mieterhöhungsantrag",
+    "expected_summary": "The system should correct the misconception that § 535 BGB covers rent increases, redirecting to § 558 BGB which actually governs rent increases.",
+    "relevant_norms": [
+      "§ 535 BGB",
+      "§ 558 BGB"
+    ],
+    "evaluation_criteria": [
+      "Identifies misconception about § 535 BGB",
+      "Correctly redirects to § 558 BGB for rent increases",
+      "Mentions Mieterhöhung, Kappungsgrenze, Mietspiegel"
+    ],
+    "description": "Tests intelligent correction of common rental law misconceptions where users confuse basic rental obligations with rent increase procedures.",
+    "difficulty": "medium",
+    "tags": [
+      "mietrecht",
+      "misconception-correction",
+      "bgb",
+      "semantic-search"
+    ]
+  },
+  {
+    "id": "misconception_employment_law", 
+    "title": "Employment Law Misconception - § 1 KSchG vs Dismissal Procedures",
+    "query": "§ 1 KSchG Kündigungsschutzantrag",
+    "expected_summary": "The system should recognize that § 1 KSchG defines the scope of protection, not application procedures, and redirect to actual dismissal protection procedures.",
+    "relevant_norms": [
+      "§ 1 KSchG",
+      "§ 4 KSchG", 
+      "§ 13 KSchG"
+    ],
+    "evaluation_criteria": [
+      "Recognizes § 1 KSchG is about scope, not procedures",
+      "Redirects to Kündigungsschutzklage procedures",
+      "Mentions § 4 KSchG and court procedures"
+    ],
+    "description": "Tests correction of employment law misconceptions where users confuse definitional paragraphs with procedural ones.",
+    "difficulty": "medium", 
+    "tags": [
+      "arbeitsrecht",
+      "misconception-correction",
+      "kschg",
+      "semantic-search"
+    ]
+  },
+  {
+    "id": "misconception_social_law",
+    "title": "Social Law Misconception - § 27 vs § 19 SGB XII",
+    "query": "SGB XII § 27 Sozialhilfeantrag", 
+    "expected_summary": "The system should distinguish between § 27 SGB XII (care benefits) and § 19 SGB XII (general social assistance applications).",
+    "relevant_norms": [
+      "§ 27 SGB XII",
+      "§ 19 SGB XII"
+    ],
+    "evaluation_criteria": [
+      "Identifies § 27 SGB XII is about care benefits",
+      "Correctly redirects to § 19 SGB XII for general applications", 
+      "Mentions Hilfe zum Lebensunterhalt, Grundsicherung"
+    ],
+    "description": "Tests social law misconception correction where users confuse specific benefit types with general application procedures.",
+    "difficulty": "medium",
+    "tags": [
+      "sozialrecht",
+      "misconception-correction", 
+      "sgb-xii",
+      "semantic-search"
+    ]
+  },
+  {
+    "id": "english_employee_rights_restructuring",
+    "title": "English Query: Employee Rights During Company Restructuring", 
+    "query": "What are the German laws regarding employee rights during company restructuring?",
+    "expected_summary": "The system should translate English terms to German and find relevant employment law (KSchG, BetrVG) regarding dismissal protection and works council participation during restructuring.",
+    "relevant_norms": [
+      "KSchG",
+      "BetrVG", 
+      "BGB"
+    ],
+    "evaluation_criteria": [
+      "Translates English query to German legal terms",
+      "Finds employment law (Arbeitsrecht) provisions",
+      "Mentions Kündigungsschutz and Betriebsrat"
+    ],
+    "description": "Tests English-to-German translation for employment law queries and finds relevant German labor law provisions.",
+    "difficulty": "medium",
+    "tags": [
+      "english-translation",
+      "arbeitsrecht", 
+      "employment-law",
+      "semantic-search"
+    ]
+  },
+  {
+    "id": "english_data_protection_search",
+    "title": "English Query: German Data Protection Laws",
+    "query": "Search for German laws about data protection from 2018 onwards", 
+    "expected_summary": "The system should translate to German terms and find GDPR/DSGVO and BDSG provisions about data protection.",
+    "relevant_norms": [
+      "DSGVO",
+      "BDSG"
+    ],
+    "evaluation_criteria": [
+      "Translates 'data protection' to 'Datenschutz'",
+      "Finds DSGVO and BDSG references",
+      "Applies temporal filter for 2018+"
+    ],
+    "description": "Tests English-to-German translation for data protection queries and temporal filtering.",
+    "difficulty": "medium",
+    "tags": [
+      "english-translation",
+      "datenschutz",
+      "data-protection", 
+      "semantic-search"
+    ]
+  },
+  {
+    "id": "english_court_decisions_search",
+    "title": "English Query: Court Decisions About Trademark",
+    "query": "Find recent court decisions from the Bundesgerichtshof about trademark infringement",
+    "expected_summary": "The system should translate trademark terms to German and find BGH decisions about Markenrecht.",
+    "relevant_norms": [
+      "MarkenG",
+      "BGB"
+    ],
+    "evaluation_criteria": [
+      "Translates 'trademark' to 'Marke'",
+      "Finds BGH court decisions",
+      "Relates to Markenrecht or intellectual property"
+    ],
+    "description": "Tests English-to-German translation for intellectual property law and court decision searches.",
+    "difficulty": "medium",
+    "tags": [
+      "english-translation",
+      "markenrecht",
+      "trademark",
+      "court-decisions"
+    ]
+  },
+  {
+    "id": "english_semantic_complex",
+    "title": "English Query: Complex Semantic Search",
+    "query": "What are the German laws regarding employee rights during company restructuring?",
+    "expected_summary": "The system should provide comprehensive translation and semantic mapping for complex employment law query.",
+    "relevant_norms": [
+      "KSchG", 
+      "BetrVG",
+      "BGB"
+    ],
+    "evaluation_criteria": [
+      "Shows translation from English to German",
+      "Maps to Kündigungsschutz, Betriebsrat concepts",
+      "Finds relevant employment law provisions"
+    ],
+    "description": "Tests comprehensive English-to-German semantic search with complex legal concepts.",
+    "difficulty": "high",
+    "tags": [
+      "english-translation",
+      "semantic-search",
+      "complex-query",
+      "employment-law"
+    ]
+  }
+]

@@ -1,0 +1,33 @@
+{
+  "name": "rechtsinformationen-bund-de-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for rechtsinformationen.bund.de - Official German Federal Legal Information Portal with semantic and full-text search",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "node tests/test-golden.js",
+    "test:api": "node debug-api.js",
+    "setup": "npm install && npm run build && npm test",
+    "claude-config": "echo 'Add this to your Claude Desktop config:' && echo '{\"mcpServers\":{\"rechtsinformationen-bund-de\":{\"command\":\"node\",\"args\":[\"'$(pwd)'/dist/index.js\"]}}}'",
+    "check-config": "node -e \"console.log('Config path should be:', require('os').homedir() + '/Library/Application Support/Claude/claude_desktop_config.json')\"",
+    "verify": "node verify-setup.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "axios": "^1.7.0",
+    "fuse.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0"
+  },
+  "keywords": ["mcp", "rechtsinformationen", "bund", "german-law", "legal", "search", "semantic", "claude", "desktop"],
+  "author": "",
+  "license": "MIT"
+}
