@@ -207,3 +207,65 @@ This is a local MCP server requiring stdio configuration in Claude Desktop:
 - `fuse.js` - Fuzzy search functionality
 
 Always restart Claude Desktop completely after configuration changes.
+
+## Recommended AI Models
+
+When using this MCP server with LibreChat or other AI platforms, these models provide the best results:
+
+### 🥇 Best Overall: Qwen 2.5-72B
+- **Excellent reasoning** and instruction following (critical for citations)
+- **Good German support** (29 languages including German)
+- **128K context window** for long legal documents
+- **Best for**: Complex legal analysis with reliable citations
+- **Setup**: `ollama pull qwen2.5:72b`
+
+### 🥈 Best for Reasoning: DeepSeek-R1-70B
+- **Superior reasoning** capabilities (o1-style chain-of-thought)
+- **Excellent for**: Multi-step legal analysis and subsumption
+- **Note**: German support limited, may need translation layer
+- **Best for**: Complex legal logic and inference tasks
+
+### 🥉 Most Reliable: LLaMA 3.3-70B
+- **Explicit German support** (10 languages)
+- **128K context window**
+- **Well-tested** and widely deployed
+- **Best for**: Balanced general-purpose legal research
+
+### Best for Efficiency: Mistral Small 3-24B
+- **German support** (12+ languages)
+- **Smaller model** (24B) but excellent performance
+- **Lower compute** requirements (~16GB VRAM)
+- **Best for**: Fast responses with limited resources
+
+### Agentic Multi-Model Setup (Recommended)
+For best performance, use specialized models for different tasks:
+- **Coordinator**: Mistral Small 3-24B (fast routing)
+- **Research**: Qwen 2.5-72B (quality legal search)
+- **Citation**: Mistral Small 3-24B (simple formatting)
+
+**Why this works**: Uses expensive models only when needed, enables parallel execution, guarantees citations from dedicated agent.
+
+### LibreChat Integration
+```json
+{
+  "endpoints": {
+    "custom": [{
+      "name": "Qwen 2.5",
+      "apiKey": "ollama",
+      "baseURL": "http://localhost:11434/v1",
+      "models": {
+        "default": ["qwen2.5:72b"]
+      }
+    }]
+  }
+}
+```
+
+### Agent Configuration Best Practices
+When configuring agents in LibreChat:
+- **recursionLimit**: 5 (prevents endless searching)
+- **temperature**: 0.3 (accuracy over creativity)
+- **instructions**: Include "STOP after 2-3 tool calls" and "MANDATORY: Include ALL URLs in Quellen section"
+- **tools**: Consider excluding `dokument_details_abrufen` (often returns 403 errors)
+
+See `LIBRECHAT_AGENT_CONFIG.md` in the repository for detailed configuration examples.
