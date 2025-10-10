@@ -142,9 +142,9 @@ For best results with any model:
   "description": "Searches official German legal database",
   "model": "qwen2.5:72b",
   "tools": [
-    "mcp__rechtsinformationen-bund-de__semantische_rechtssuche",
-    "mcp__rechtsinformationen-bund-de__deutsche_gesetze_suchen",
-    "mcp__rechtsinformationen-bund-de__rechtsprechung_suchen"
+    "mcp__rechtsinformationen__semantische_rechtssuche",
+    "mcp__rechtsinformationen__deutsche_gesetze_suchen",
+    "mcp__rechtsinformationen__rechtsprechung_suchen"
   ],
   "recursionLimit": 5,
   "temperature": 0.3,
@@ -162,7 +162,7 @@ For best results with any model:
 ### Quick Setup
 ```bash
 git clone <repo-url>
-cd rechtsinformationen-bund-de-mcp
+cd rechtsinformationen
 ./quick-setup.sh
 ```
 
@@ -180,9 +180,9 @@ npm test  # Should show passing tests
 ```json
 {
   "mcpServers": {
-    "rechtsinformationen-bund-de": {
+    "rechtsinformationen": {
       "command": "node",
-      "args": ["/absolute/path/to/rechtsinformationen-bund-de-mcp/dist/index.js"]
+      "args": ["/absolute/path/to/rechtsinformationen/dist/index.js"]
     }
   }
 }
@@ -193,9 +193,9 @@ npm test  # Should show passing tests
 ```json
 {
   "mcpServers": {
-    "rechtsinformationen-bund-de": {
+    "rechtsinformationen": {
       "command": "node",
-      "args": ["C:\\absolute\\path\\to\\rechtsinformationen-bund-de-mcp\\dist\\index.js"]
+      "args": ["C:\\absolute\\path\\to\\rechtsinformationen\\dist\\index.js"]
     }
   }
 }
@@ -219,9 +219,9 @@ For optimal performance with LibreChat and Ollama models (Qwen, DeepSeek, LLaMA)
   "temperature": 0.3,
   "instructions": "CRITICAL RULES:\n- MAXIMUM 2-3 tool calls per query\n- STOP searching after finding 3+ relevant documents\n- ALWAYS include URLs in 'Quellen' section\n- Use semantische_rechtssuche first\n\nCitation Format (MANDATORY):\n## Quellen\n1. [Law name] - [URL]\n2. [Law name] - [URL]",
   "tools": [
-    "semantische_rechtssuche_mcp_rechtsinformationen-bund-de",
-    "deutsche_gesetze_suchen_mcp_rechtsinformationen-bund-de",
-    "rechtsprechung_suchen_mcp_rechtsinformationen-bund-de"
+    "semantische_rechtssuche_mcp_rechtsinformationen",
+    "deutsche_gesetze_suchen_mcp_rechtsinformationen",
+    "rechtsprechung_suchen_mcp_rechtsinformationen"
   ]
 }
 ```
