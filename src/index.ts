@@ -90,7 +90,7 @@ Example: /v1/legislation/eli/bund/bgbl-1/2006/s2748/2025-05-01/1/deu
 These URLs work directly in browsers and API calls.
 
 **When to use:**
-✓ Follow-up searches after semantische_rechtssuche
+✓ Follow-up searches after intelligente_rechtssuche
 ✓ When you need legislation-only results (excludes case law)
 ✓ When searching for specific law abbreviations (BEEG, BGB, SGB)
 
@@ -104,7 +104,7 @@ These URLs work directly in browsers and API calls.
 • limit: Max results, default 10, API max 100
 
 **Usage Priority:**
-For initial queries → Use semantische_rechtssuche first
+For initial queries → Use intelligente_rechtssuche first
 For legislation-only → Use this tool`,
             inputSchema: {
               type: 'object',
@@ -147,7 +147,7 @@ Example: /v1/case-law/ecli/de/bgh/2023/010523
 These URLs work directly in browsers and API calls.
 
 **When to use:**
-✓ Follow-up searches after semantische_rechtssuche
+✓ Follow-up searches after intelligente_rechtssuche
 ✓ When you need case-law-only results (excludes legislation)
 ✓ When filtering by specific courts (use 'court' parameter)
 ✓ When searching for Urteile (judgments) or Beschlüsse (decisions)
@@ -168,7 +168,7 @@ These URLs work directly in browsers and API calls.
 • limit: Max results, default 10, API max 100
 
 **Usage Priority:**
-For initial queries → Use semantische_rechtssuche first
+For initial queries → Use intelligente_rechtssuche first
 For court-specific searches → Use this tool`,
             inputSchema: {
               type: 'object',
@@ -229,7 +229,7 @@ This tool accepts:
 ✓ When you need HTML or XML format instead of JSON
 
 **When NOT to use:**
-✗ For initial searches (use semantische_rechtssuche instead)
+✗ For initial searches (use intelligente_rechtssuche instead)
 ✗ When you don't have a specific document ID
 ✗ To browse or discover documents (use search tools instead)
 
@@ -278,7 +278,7 @@ Results contain mixed URLs:
 All URLs work directly in browsers and API calls.
 
 **When to use:**
-✓ Follow-up searches after semantische_rechtssuche
+✓ Follow-up searches after intelligente_rechtssuche
 ✓ When you want both legislation AND case law results
 ✓ When using documentKind filter to switch between types
 ✓ When you've exhausted other specialized tools
@@ -301,7 +301,7 @@ All URLs work directly in browsers and API calls.
 • limit: Max results, default 10, API max 100
 
 **Usage Priority:**
-For initial queries → Use semantische_rechtssuche first
+For initial queries → Use intelligente_rechtssuche first
 For type-specific searches → Use deutsche_gesetze_suchen or rechtsprechung_suchen
 For broad mixed results → Use this tool
 
@@ -340,7 +340,7 @@ For broad mixed results → Use this tool
             },
           },
           {
-            name: 'semantische_rechtssuche',
+            name: 'intelligente_rechtssuche',
             description: `🧠 **PRIMARY TOOL** ⭐ ALWAYS USE THIS FIRST for ANY German legal question ⭐
 
 **What this tool searches:**
@@ -363,10 +363,11 @@ Results contain mixed URLs (same as alle_rechtsdokumente_suchen):
 All URLs work directly in browsers and API calls.
 
 **What this tool does NOT do:**
+✗ Does NOT perform true semantic search with ML embeddings
 ✗ Does NOT generate semantically similar terms (YOU must provide variations)
 ✗ Does NOT try multiple query phrasings (YOU must search with different terms)
 ✗ Does NOT explore related concepts automatically (YOU need multiple searches)
-✗ Does NOT use ML embeddings (uses keyword matching + Fuse.js fuzzy search)
+✗ Uses keyword matching + Fuse.js fuzzy search (not neural embeddings)
 
 **AI Agent Responsibilities:**
 As the calling agent, YOU must:
@@ -460,7 +461,7 @@ The URL works directly in browsers and API calls.
 ✓ When you need a specific version/date of legislation
 
 **When NOT to use:**
-✗ For initial searches (use semantische_rechtssuche instead)
+✗ For initial searches (use intelligente_rechtssuche instead)
 ✗ When you only have a law name (use deutsche_gesetze_suchen)
 ✗ For court decisions (use rechtsprechung_suchen or ECLI instead)
 ✗ When you don't have the complete ELI path
@@ -527,7 +528,7 @@ Common German federal laws (examples):
 ✓ To avoid irrelevant search results
 
 **When NOT to use:**
-✗ For broad legal research (use semantische_rechtssuche)
+✗ For broad legal research (use intelligente_rechtssuche)
 ✗ When searching for court decisions (use rechtsprechung_suchen)
 ✗ For full-text content search (use deutsche_gesetze_suchen)
 
@@ -549,7 +550,7 @@ Output: Sozialgesetzbuch (SGB) Erstes Buch (I) - Allgemeiner Teil
 
 **Usage Priority:**
 For exact law lookup by abbreviation → Use this tool FIRST
-For content search within laws → Use semantische_rechtssuche or deutsche_gesetze_suchen`,
+For content search within laws → Use intelligente_rechtssuche or deutsche_gesetze_suchen`,
             inputSchema: {
               type: 'object',
               properties: {
@@ -578,7 +579,7 @@ For content search within laws → Use semantische_rechtssuche or deutsche_geset
 ✓ To see all paragraphs (§) in a law
 
 **When NOT to use:**
-✗ For initial searches (use semantische_rechtssuche instead)
+✗ For initial searches (use intelligente_rechtssuche instead)
 ✗ When you don't have a law identifier yet
 
 **Parameters:**
@@ -628,7 +629,7 @@ Output: Table of contents for SGB I with all chapters and paragraphs
             return await this.getDocumentDetails(args);
           case 'alle_rechtsdokumente_suchen':
             return await this.searchAllDocuments(args);
-          case 'semantische_rechtssuche':
+          case 'intelligente_rechtssuche':
             return await this.intelligentLegalSearch(args);
           case 'gesetz_per_eli_abrufen':
             return await this.getLegislationByEli(args);
@@ -1418,6 +1419,68 @@ Output: Table of contents for SGB I with all chapters and paragraphs
     return [...new Set(expansions)].filter(term => term && term.length > 0);
   }
 
+  /**
+   * Generate human-readable URL from document data
+   */
+  private generateHumanReadableUrl(doc: any): string {
+    // For legislation
+    if (doc['@type'] === 'Legislation') {
+      // Try to extract slug from existing encodings
+      if (doc.workExample && doc.workExample.encoding) {
+        const htmlEncoding = doc.workExample.encoding.find((enc: any) =>
+          enc.encodingFormat === 'text/html' && enc.contentUrl
+        );
+        if (htmlEncoding) {
+          return `https://testphase.rechtsinformationen.bund.de${htmlEncoding.contentUrl}`;
+        }
+      }
+
+      // Fallback: generate slug from document name
+      const name = doc.headline || doc.name || '';
+      const slug = name
+        .toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/--+/g, '-') // Remove multiple hyphens
+        .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+        .substring(0, 100); // Limit length
+
+      if (slug) {
+        return `https://testphase.rechtsinformationen.bund.de/norms/${slug}`;
+      }
+
+      // Last resort: use ELI-based URL
+      const documentUrl = doc.workExample?.['@id'] || doc['@id'] || '';
+      return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1/legislation/', '/norms/')}`;
+    }
+
+    // For case law
+    if (doc['@type'] === 'CaseLaw' || doc.ecli) {
+      if (doc.ecli) {
+        return `https://testphase.rechtsinformationen.bund.de/ecli/${doc.ecli}`;
+      }
+      const documentUrl = doc['@id'] || '';
+      return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1', '')}`;
+    }
+
+    // Fallback for other document types
+    const documentUrl = doc['@id'] || '';
+    return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1', '')}`;
+  }
+
+  /**
+   * Format document as markdown link with name
+   */
+  private formatDocumentLink(doc: any): string {
+    const name = doc.headline || doc.name || 'Untitled Document';
+    const url = this.generateHumanReadableUrl(doc);
+    return `[${name}](${url})`;
+  }
+
   private formatLegislationResults(data: any): string {
     if (!data.member || data.member.length === 0) {
       return 'No legislation found.';
@@ -1479,43 +1542,28 @@ Output: Table of contents for SGB I with all chapters and paragraphs
         }
       }
       
-      return `**📋 OFFICIAL LAW ${index + 1} - CITE THIS:** ${law.headline || law.name || 'German Federal Law'}
+      // Generate human-readable markdown link
+      const docLink = this.formatDocumentLink(law);
+
+      return `**📋 OFFICIAL LAW ${index + 1} - CITE THIS:** ${docLink}
 📋 **Law Type:** ${law['@type']} | **Date:** ${law.legislationDate || law.decisionDate || 'N/A'}
 🔗 **ELI Identifier:** ${law.eli || law.documentNumber || 'N/A'}
 📖 **Abbreviation:** ${law.abbreviation || 'N/A'}
 ${paragraphMatches.length > 0 ? `⚖️ **KEY LEGAL REFERENCES TO CITE:** ${paragraphMatches.slice(0, 3).join(', ')}` : ''}
 
 📝 **Law Content:**
-${Object.entries(relevantTexts).map(([name, text]) => 
+${Object.entries(relevantTexts).map(([name, text]) =>
   `• **${name}**: ${(text as string || '').substring(0, 300)}${(text as string || '').length > 300 ? '...' : ''}`
 ).join('\n')}
 
 📖 **OFFICIAL REFERENCE:** ${referenceInfo}
-🌐 **READ ONLINE (HTML):** ${htmlUrl}
-📊 **API ACCESS (JSON):** ${apiUrl}
 💡 **NOTE:** Official German federal legislation database`;
     }).join('\n\n' + '─'.repeat(80) + '\n\n');
 
-    const footer = `\n${'='.repeat(80)}\n📋 **REQUIRED: COPY THESE URLS TO YOUR "QUELLEN" OR "SOURCES" SECTION**\n\nYou MUST include ALL of these URLs in your response:\n\n${data.member.map((sr: SearchResult, i: number) => {
+    const footer = `\n${'='.repeat(80)}\n📋 **REQUIRED: COPY THESE LINKS TO YOUR "QUELLEN" OR "SOURCES" SECTION**\n\nYou MUST include ALL of these markdown links in your response:\n\n${data.member.map((sr: SearchResult, i: number) => {
       const law = sr.item;
-      let documentUrl = law['@id'];
-      if (law.workExample && law.workExample['@id']) {
-        documentUrl = law.workExample['@id'];
-      }
-
-      // Get HTML URL if available for user-friendly links
-      let htmlUrl = `https://testphase.rechtsinformationen.bund.de${documentUrl}`;
-      const workExampleFooter = law.workExample as any;
-      if (workExampleFooter && workExampleFooter.encoding) {
-        const htmlEncoding = workExampleFooter.encoding.find((enc: any) =>
-          enc.encodingFormat === 'text/html' && enc.contentUrl
-        );
-        if (htmlEncoding) {
-          htmlUrl = `https://testphase.rechtsinformationen.bund.de${htmlEncoding.contentUrl}`;
-        }
-      }
-
-      return `   ${i + 1}. ${htmlUrl}`;
+      const docLink = this.formatDocumentLink(law);
+      return `   ${i + 1}. ${docLink}`;
     }).join('\n')}\n`;
     
     return sourceHeader + results + footer;
@@ -1548,14 +1596,10 @@ ${Object.entries(relevantTexts).map(([name, text]) =>
       const allContent = textMatches.map(m => m.text || '').join(' ');
       const paragraphMatches = allContent.match(/§\s*\d+[a-z]?(\s*(Abs\.?|Absatz)\s*\d+)?(\s*(S\.?|Satz)\s*\d+)?\s*(SGB|BGB|StGB|GG|VwVfG|BEEG|EStG)\s*[IVX]*\d*/gi) || [];
       
-      // Generate human-readable web URLs - court decisions use ECLI links
-      let readableUrl: string;
-      
-      // For court decisions: Always use case-law URL format (has full content)
-      // ECLI URLs on testphase appear to show shorter/placeholder content
-      readableUrl = `https://testphase.rechtsinformationen.bund.de${case_['@id'].replace('/v1', '')}`;
-      
-      return `**📋 OFFICIAL COURT DECISION ${index + 1} - CITE THIS:** ${case_.headline || 'German Court Decision'}
+      // Generate human-readable markdown link
+      const caseLink = this.formatDocumentLink(case_);
+
+      return `**📋 OFFICIAL COURT DECISION ${index + 1} - CITE THIS:** ${caseLink}
 🏛️ **Court:** ${case_.courtName || 'German Federal Court'} | ${case_.judicialBody || ''}
 📅 **Decision Date:** ${case_.decisionDate || 'N/A'} | **Type:** ${case_.documentType || 'N/A'}
 📋 **Case Numbers:** ${case_.fileNumbers?.join(', ') || 'N/A'}
@@ -1563,20 +1607,15 @@ ${Object.entries(relevantTexts).map(([name, text]) =>
 ${paragraphMatches.length > 0 ? `⚖️ **KEY LEGAL REFERENCES TO CITE:** ${paragraphMatches.slice(0, 3).join(', ')}` : ''}
 
 📝 **Decision Content:**
-${Object.entries(contentByType).map(([type, text]) => 
+${Object.entries(contentByType).map(([type, text]) =>
   `• **${type}**: ${(text as string || '').substring(0, 250)}${(text as string || '').length > 250 ? '...' : ''}`
-).join('\n')}
-
-🌐 **HUMAN-READABLE LINK FOR USER:** ${readableUrl}`;
+).join('\n')}`;
     }).join('\n\n' + '─'.repeat(80) + '\n\n');
 
-    const footer = `\n${'='.repeat(80)}\n💡 **MANDATORY CITATION:** All above from official German Federal Court Decisions\n🔍 **SOURCE:** rechtsinformationen.bund.de | **Via:** Rechtsinformationen Bund DE MCP Server\n⚠️ **IMPORTANT:** Include specific § references and source URLs in your final response.\n🌐 **WICHTIG:** Include these URLs in your "Quellen" section:\n${data.member.map((sr: SearchResult, i: number) => {
+    const footer = `\n${'='.repeat(80)}\n📋 **REQUIRED: COPY THESE LINKS TO YOUR "QUELLEN" OR "SOURCES" SECTION**\n\nYou MUST include ALL of these markdown links in your response:\n\n${data.member.map((sr: SearchResult, i: number) => {
       const case_ = sr.item;
-      let readableUrl = `https://rechtsinformationen.bund.de${case_['@id']}`.replace('/v1/', '/').replace('testphase.', '');
-      if (case_.ecli) {
-        readableUrl = `https://www.rechtsinformationen.bund.de/ecli/${case_.ecli}`;
-      }
-      return `   ${i + 1}. ${readableUrl}`;
+      const caseLink = this.formatDocumentLink(case_);
+      return `   ${i + 1}. ${caseLink}`;
     }).join('\n')}\n`;
     
     return sourceHeader + results + footer;
@@ -1738,7 +1777,10 @@ ${JSON.stringify(data, null, 2)}`;
       const paragraphMatches = allContent.match(/§\s*\d+[a-z]?(\s*(Abs\.?|Absatz)\s*\d+)?/gi) || [];
       const uniqueParas = [...new Set(paragraphMatches)].slice(0, 3);
 
-      return `${index + 1}. **${doc.headline || doc.name || 'Untitled Document'}**
+      // Generate human-readable markdown link
+      const docLink = this.formatDocumentLink(doc);
+
+      return `${index + 1}. ${docLink}
    📊 **Confidence:** ${confidenceLabel} (${confidence}%) | **Priority:** ${priority}
    📂 **Law Type:** ${lawType}
    📅 **Date:** ${doc.legislationDate || doc.decisionDate || 'N/A'}
@@ -1813,7 +1855,7 @@ ${JSON.stringify(data, null, 2)}`;
       return {
         content: [{
           type: 'text',
-          text: `❌ No law found for abbreviation "${abbreviation}"\n\n💡 **Suggestions:**\n• Check spelling (e.g., "SGB I" not "SGB 1")\n• Try the full law name instead\n• Use semantische_rechtssuche for broader search\n• Common abbreviations: SGB I-XII, BGB, StGB, GG, AufenthG, KSchG, BEEG`
+          text: `❌ No law found for abbreviation "${abbreviation}"\n\n💡 **Suggestions:**\n• Check spelling (e.g., "SGB I" not "SGB 1")\n• Try the full law name instead\n• Use intelligente_rechtssuche for broader search\n• Common abbreviations: SGB I-XII, BGB, StGB, GG, AufenthG, KSchG, BEEG`
         }]
       };
     }
@@ -1825,15 +1867,50 @@ ${JSON.stringify(data, null, 2)}`;
 
       // Check abbreviation field (highest priority)
       if (item.abbreviation) {
-        const itemAbbr = item.abbreviation.toUpperCase();
-        if (itemAbbr === normalizedAbbr) score += 100;
-        else if (itemAbbr.includes(normalizedAbbr)) score += 50;
+        const itemAbbr = item.abbreviation.trim().toUpperCase();
+        const searchAbbr = normalizedAbbr.trim();
+
+        // Exact match (highest priority)
+        if (itemAbbr === searchAbbr) {
+          score += 1000;
+        }
+        // Handle SGB variations: "SGB I" should match "SGB I" exactly, not "SGB IX" or "SGB II"
+        else if (searchAbbr.startsWith('SGB')) {
+          // Extract the book number/numeral from both
+          const searchBook = searchAbbr.replace('SGB', '').trim();
+          const itemBook = itemAbbr.replace('SGB', '').trim();
+
+          // Exact book match (very high priority)
+          if (searchBook === itemBook) {
+            score += 900;
+          }
+          // Partial match only if it's not a different SGB book
+          else if (itemAbbr.includes(searchAbbr)) {
+            // Check if this is actually a different SGB book
+            const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII', 'XIII', 'XIV'];
+            const isDifferentBook = romanNumerals.some(numeral => {
+              return searchBook !== numeral && itemBook === numeral;
+            });
+
+            if (!isDifferentBook) {
+              score += 50;
+            }
+            // Penalize wrong SGB book
+            else {
+              score -= 500;
+            }
+          }
+        }
+        // Non-SGB laws: allow partial matches
+        else if (itemAbbr.includes(searchAbbr)) {
+          score += 50;
+        }
       }
 
       // Check alternateName field
       if (item.alternateName) {
-        const altName = item.alternateName.toUpperCase();
-        if (altName === normalizedAbbr) score += 90;
+        const altName = item.alternateName.trim().toUpperCase();
+        if (altName === normalizedAbbr.trim()) score += 900;
         else if (altName.includes(normalizedAbbr)) score += 40;
       }
 
@@ -1846,7 +1923,7 @@ ${JSON.stringify(data, null, 2)}`;
         score += 20;
       }
 
-      // Boost recent versions
+      // Boost recent versions (but only slightly)
       if (item.legislationDate) {
         const year = parseInt(item.legislationDate.substring(0, 4));
         if (year > 2000) score += 10;
@@ -1864,11 +1941,11 @@ ${JSON.stringify(data, null, 2)}`;
     scoredResults.sort((a, b) => b.score - a.score);
     bestMatch = scoredResults[0]?.result;
 
-    if (!bestMatch) {
+    if (!bestMatch || scoredResults[0]?.score < 0) {
       return {
         content: [{
           type: 'text',
-          text: `⚠️ Found ${uniqueResults.length} results but none match exactly.\n\nPlease use semantische_rechtssuche or deutsche_gesetze_suchen for broader search.`
+          text: `⚠️ Found ${uniqueResults.length} results but none match exactly.\n\nPlease use intelligente_rechtssuche or deutsche_gesetze_suchen for broader search.`
         }]
       };
     }
@@ -1877,41 +1954,37 @@ ${JSON.stringify(data, null, 2)}`;
     const law = bestMatch.item;
     const lawType = this.classifyLawType(law);
 
-    // Get document URL
-    let documentUrl = law['@id'];
-    if (law.workExample && law.workExample['@id']) {
-      documentUrl = law.workExample['@id'];
+    // Validate abbreviation match and warn if mismatch
+    const itemAbbr = (law.abbreviation || '').trim().toUpperCase();
+    const searchAbbr = normalizedAbbr.trim();
+    const isExactMatch = itemAbbr === searchAbbr;
+
+    // For SGB laws, check book numbers match
+    let isSGBBookMatch = true;
+    if (searchAbbr.startsWith('SGB')) {
+      const searchBook = searchAbbr.replace('SGB', '').trim();
+      const itemBook = itemAbbr.replace('SGB', '').trim();
+      isSGBBookMatch = searchBook === itemBook;
     }
 
-    const apiUrl = `https://testphase.rechtsinformationen.bund.de${documentUrl}`;
+    // If abbreviation doesn't match exactly, add warning
+    const mismatchWarning = (!isExactMatch || !isSGBBookMatch) ? `\n\n⚠️ **WARNING:** Searched for "${abbreviation}" but found "${law.abbreviation || 'Unknown'}"\nThis may not be an exact match. Consider using intelligente_rechtssuche for more accurate results.\n` : '';
 
-    // Try to get HTML URL
-    let htmlUrl = apiUrl;
-    const workExample = law.workExample as any;
-    if (workExample && workExample.encoding) {
-      const htmlEncoding = workExample.encoding.find((enc: any) =>
-        enc.encodingFormat === 'text/html' && enc.contentUrl
-      );
-      if (htmlEncoding) {
-        htmlUrl = `https://testphase.rechtsinformationen.bund.de${htmlEncoding.contentUrl}`;
-      }
-    }
+    // Generate human-readable markdown link
+    const docLink = this.formatDocumentLink(law);
 
     return {
       content: [{
         type: 'text',
-        text: `📖 **LAW FOUND BY ABBREVIATION: ${abbreviation}**
+        text: `📖 **LAW FOUND BY ABBREVIATION: ${abbreviation}**${mismatchWarning}
 
-**Full Title:** ${law.headline || law.name || 'Unknown'}
+**Full Title:** ${docLink}
 **Official Abbreviation:** ${law.abbreviation || 'N/A'}
 **Law Type:** ${lawType}
 **Document Number:** ${law.documentNumber || 'N/A'}
 **ELI Identifier:** ${law.eli || 'N/A'}
 **Publication Date:** ${law.legislationDate || 'N/A'}
 **Language:** ${law.inLanguage || 'German (deu)'}
-
-🌐 **READ ONLINE (HTML):** ${htmlUrl}
-📊 **API ACCESS (JSON):** ${apiUrl}
 
 💡 **Next Steps:**
 • Use gesetz_inhaltsverzeichnis_abrufen to see table of contents
@@ -1998,7 +2071,7 @@ ${JSON.stringify(data, null, 2)}`;
         return {
           content: [{
             type: 'text',
-            text: `❌ Access forbidden (403) for document: ${lawId}\n\n💡 **Alternative:**\nThe table of contents may not be accessible via API. Try:\n1. Use the HTML URL in a browser\n2. Use deutsche_gesetze_suchen to search for specific sections\n3. Use semantische_rechtssuche to find relevant paragraphs`
+            text: `❌ Access forbidden (403) for document: ${lawId}\n\n💡 **Alternative:**\nThe table of contents may not be accessible via API. Try:\n1. Use the HTML URL in a browser\n2. Use deutsche_gesetze_suchen to search for specific sections\n3. Use intelligente_rechtssuche to find relevant paragraphs`
           }]
         };
       }

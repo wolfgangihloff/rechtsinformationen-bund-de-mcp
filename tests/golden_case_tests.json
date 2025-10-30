@@ -293,7 +293,7 @@
     "query": "What are the German laws regarding employee rights during company restructuring?",
     "expected_summary": "The system should provide comprehensive translation and semantic mapping for complex employment law query.",
     "relevant_norms": [
-      "KSchG", 
+      "KSchG",
       "BetrVG",
       "BGB"
     ],
@@ -309,6 +309,123 @@
       "semantic-search",
       "complex-query",
       "employment-law"
+    ]
+  },
+  {
+    "id": "gg_article_1",
+    "title": "Grundgesetz Artikel 1 - Menschenwürde",
+    "query": "Wie lautet der Artikel 1 des Grundgesetzes?",
+    "expected_law": "GG",
+    "relevant_norms": [
+      "Art. 1 GG"
+    ],
+    "evaluation_criteria": [
+      "Finds Grundgesetz für die Bundesrepublik Deutschland",
+      "Returns text of Article 1",
+      "URL is human-readable markdown link with document name"
+    ],
+    "description": "Tests basic law lookup by article number - very common use case.",
+    "difficulty": "easy",
+    "tags": [
+      "grundgesetz",
+      "article-lookup",
+      "constitutional-law"
+    ]
+  },
+  {
+    "id": "sgb_i_lookup",
+    "title": "SGB I Direktzugriff per Abkürzung",
+    "query": "Finde mir das Gesetz SGB I",
+    "expected_law": "SGB I",
+    "relevant_norms": [
+      "SGB I"
+    ],
+    "expected_abbreviation": "SGB I",
+    "should_not_return": "VersMedV",
+    "evaluation_criteria": [
+      "Returns Sozialgesetzbuch Erstes Buch",
+      "NOT VersMedV or other wrong law",
+      "Abbreviation matches exactly SGB I",
+      "URL is human-readable markdown link"
+    ],
+    "description": "Tests abbreviation search accuracy - critical bug fix validation.",
+    "difficulty": "medium",
+    "tags": [
+      "abbreviation-search",
+      "sgb",
+      "bug-validation"
+    ]
+  },
+  {
+    "id": "sgb_collection_search",
+    "title": "Alle Sozialgesetzbücher finden",
+    "query": "Bitte suche mir die SGB Gesetze raus",
+    "expected_law": "SGB",
+    "relevant_norms": [
+      "SGB I",
+      "SGB II",
+      "SGB III",
+      "SGB IV",
+      "SGB V",
+      "SGB VI"
+    ],
+    "evaluation_criteria": [
+      "Finds multiple SGB books (at least 5)",
+      "Each result has human-readable markdown link",
+      "Results include various SGB books I-XIV",
+      "URLs contain document names not just API paths"
+    ],
+    "description": "Tests finding multiple related laws - validates URL formatting across multiple results.",
+    "difficulty": "medium",
+    "tags": [
+      "sgb",
+      "multi-document",
+      "url-validation"
+    ]
+  },
+  {
+    "id": "bgb_abbreviation",
+    "title": "BGB per Abkürzung finden",
+    "query": "Zeige mir das BGB",
+    "expected_law": "BGB",
+    "relevant_norms": [
+      "BGB"
+    ],
+    "expected_abbreviation": "BGB",
+    "evaluation_criteria": [
+      "Returns Bürgerliches Gesetzbuch",
+      "Abbreviation matches exactly BGB",
+      "URL is markdown link with full law name",
+      "NOT other laws with BGB in name"
+    ],
+    "description": "Tests common abbreviation lookup for civil code.",
+    "difficulty": "easy",
+    "tags": [
+      "abbreviation-search",
+      "bgb",
+      "civil-law"
+    ]
+  },
+  {
+    "id": "stgb_paragraph_search",
+    "title": "StGB Paragraphensuche",
+    "query": "Was regelt § 242 StGB?",
+    "expected_law": "StGB",
+    "relevant_norms": [
+      "§ 242 StGB"
+    ],
+    "evaluation_criteria": [
+      "Finds Strafgesetzbuch",
+      "Identifies § 242 (Diebstahl)",
+      "Returns content about theft",
+      "URL is human-readable markdown link"
+    ],
+    "description": "Tests specific paragraph search in criminal code.",
+    "difficulty": "medium",
+    "tags": [
+      "paragraph-search",
+      "stgb",
+      "criminal-law"
     ]
   }
 ]
