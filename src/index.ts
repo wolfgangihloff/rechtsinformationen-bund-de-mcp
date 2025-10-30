@@ -25,6 +25,9 @@ interface SearchResult {
     name?: string;
     decisionDate?: string;
     legislationDate?: string;
+    datePublished?: string;
+    temporalCoverage?: string;
+    inForce?: boolean;
     fileNumbers?: string[];
     courtType?: string;
     courtName?: string;
@@ -57,7 +60,7 @@ class RechtsinformationenBundDeMCPServer {
     this.server = new Server(
       {
         name: 'rechtsinformationen',
-        version: '1.1.0',
+        version: '1.2.0',
       },
       {
         capabilities: {
@@ -355,12 +358,34 @@ For broad mixed results → Use this tool
 ✓ Multiple search term execution in parallel
 ✓ Result prioritization and deduplication
 
-**URL Construction:**
-Results contain mixed URLs (same as alle_rechtsdokumente_suchen):
-• Legislation: https://testphase.rechtsinformationen.bund.de/v1/legislation/eli/bund/...
-• Case Law: https://testphase.rechtsinformationen.bund.de/v1/case-law/ecli/de/...
+**Data Model Understanding (CRITICAL for answering questions):**
+Results follow FRBR model with three levels:
+1. **Work** (Abstract): The law as intellectual creation
+2. **Expression** (Version): Specific publication with metadata
+3. **Manifestation** (Format): HTML links for reading, JSON-LD for metadata
 
-All URLs work directly in browsers and API calls.
+**Metadata Available in Search Results:**
+• **Immediately available** (no follow-up needed):
+  - legislationDate - When the law was passed/enacted
+  - datePublished - When published in Federal Law Gazette (BGBl)
+  - name - Full law title
+  - abbreviation - Official abbreviation (BGB, StGB, etc.)
+
+• **Requires follow-up call** (use gesetz_per_eli_abrufen):
+  - temporalCoverage - Date range when law is/was in force
+  - inForce - Current validity status (boolean)
+  - Full text content and structure
+
+**Results contain:**
+• **HTML links** (Manifestation): [Law Name] for users to read
+• **Basic metadata** (Expression): Legislation date, published date immediately visible
+• **Detailed metadata**: Use gesetz_per_eli_abrufen for inForce status and temporal coverage
+
+**Example Use Cases:**
+• "When was BGB enacted?" → Check legislationDate in results (immediate)
+• "When was BGB published?" → Check datePublished in results (immediate)
+• "Is SGB IX still valid?" → Use gesetz_per_eli_abrufen for inForce status (follow-up)
+• "Show me § 242 StGB" → Use HTML link for law text (immediate)
 
 **What this tool does NOT do:**
 ✗ Does NOT perform true semantic search with ML embeddings
@@ -1420,49 +1445,34 @@ Output: Table of contents for SGB I with all chapters and paragraphs
   }
 
   /**
-   * Generate human-readable URL from document data
+   * Generate human-readable HTML URL from document data
+   *
+   * Converts API JSON URLs to HTML viewer URLs:
+   * - Legislation: /v1/legislation/eli/... → /norms/eli/...
+   * - Case Law: /v1/case-law/... → /case-law/...
    */
   private generateHumanReadableUrl(doc: any): string {
-    // For legislation
+    // For legislation - use workExample for the correct versioned URL
     if (doc['@type'] === 'Legislation') {
-      // Try to extract slug from existing encodings
-      if (doc.workExample && doc.workExample.encoding) {
-        const htmlEncoding = doc.workExample.encoding.find((enc: any) =>
-          enc.encodingFormat === 'text/html' && enc.contentUrl
-        );
-        if (htmlEncoding) {
-          return `https://testphase.rechtsinformationen.bund.de${htmlEncoding.contentUrl}`;
-        }
-      }
-
-      // Fallback: generate slug from document name
-      const name = doc.headline || doc.name || '';
-      const slug = name
-        .toLowerCase()
-        .replace(/ä/g, 'ae')
-        .replace(/ö/g, 'oe')
-        .replace(/ü/g, 'ue')
-        .replace(/ß/g, 'ss')
-        .replace(/[^a-z0-9\s-]/g, '') // Remove special chars
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/--+/g, '-') // Remove multiple hyphens
-        .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
-        .substring(0, 100); // Limit length
-
-      if (slug) {
-        return `https://testphase.rechtsinformationen.bund.de/norms/${slug}`;
-      }
-
-      // Last resort: use ELI-based URL
+      // Prefer workExample which has the full versioned path
       const documentUrl = doc.workExample?.['@id'] || doc['@id'] || '';
-      return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1/legislation/', '/norms/')}`;
+
+      // Convert /v1/legislation/eli/... to /norms/eli/...
+      if (documentUrl.includes('/v1/legislation/eli/')) {
+        return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1/legislation/', '/norms/')}`;
+      }
+
+      // Fallback for non-ELI legislation URLs
+      return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1', '')}`;
     }
 
-    // For case law
+    // For case law - use ECLI format or document path
     if (doc['@type'] === 'CaseLaw' || doc.ecli) {
       if (doc.ecli) {
-        return `https://testphase.rechtsinformationen.bund.de/ecli/${doc.ecli}`;
+        // ECLI format: convert to /case-law/ecli/... path
+        return `https://testphase.rechtsinformationen.bund.de/case-law/ecli/${doc.ecli}`;
       }
+      // Standard document path
       const documentUrl = doc['@id'] || '';
       return `https://testphase.rechtsinformationen.bund.de${documentUrl.replace('/v1', '')}`;
     }
@@ -1545,10 +1555,18 @@ Output: Table of contents for SGB I with all chapters and paragraphs
       // Generate human-readable markdown link
       const docLink = this.formatDocumentLink(law);
 
+      // Extract metadata information (Expression level data)
+      const metadataInfo = [];
+      if (law.legislationDate) metadataInfo.push(`**Legislation Date:** ${law.legislationDate}`);
+      if (law.datePublished) metadataInfo.push(`**Published:** ${law.datePublished}`);
+      if (law.temporalCoverage) metadataInfo.push(`**Valid Period:** ${law.temporalCoverage}`);
+      if (typeof law.inForce === 'boolean') metadataInfo.push(`**In Force:** ${law.inForce ? '✅ Yes' : '❌ No'}`);
+
       return `**📋 OFFICIAL LAW ${index + 1} - CITE THIS:** ${docLink}
 📋 **Law Type:** ${law['@type']} | **Date:** ${law.legislationDate || law.decisionDate || 'N/A'}
 🔗 **ELI Identifier:** ${law.eli || law.documentNumber || 'N/A'}
 📖 **Abbreviation:** ${law.abbreviation || 'N/A'}
+${metadataInfo.length > 0 ? `📅 **METADATA (for validity/date questions):** ${metadataInfo.join(' | ')}` : ''}
 ${paragraphMatches.length > 0 ? `⚖️ **KEY LEGAL REFERENCES TO CITE:** ${paragraphMatches.slice(0, 3).join(', ')}` : ''}
 
 📝 **Law Content:**
@@ -1557,7 +1575,8 @@ ${Object.entries(relevantTexts).map(([name, text]) =>
 ).join('\n')}
 
 📖 **OFFICIAL REFERENCE:** ${referenceInfo}
-💡 **NOTE:** Official German federal legislation database`;
+💡 **NOTE:** Official German federal legislation database (rechtsinformationen.bund.de)
+🔍 **DATA MODEL:** This response contains Expression-level metadata (dates, validity) and Manifestation-level links (HTML for reading)`;
     }).join('\n\n' + '─'.repeat(80) + '\n\n');
 
     const footer = `\n${'='.repeat(80)}\n📋 **REQUIRED: COPY THESE LINKS TO YOUR "QUELLEN" OR "SOURCES" SECTION**\n\nYou MUST include ALL of these markdown links in your response:\n\n${data.member.map((sr: SearchResult, i: number) => {
@@ -1821,12 +1840,40 @@ ${JSON.stringify(data, null, 2)}`;
     // Normalize abbreviation (handle variations like "SGB I" vs "SGB-I" vs "SGBI")
     const normalizedAbbr = abbreviation.trim().toUpperCase();
 
-    // Build search query with exact phrase and variations
-    const searchQueries = [
-      `"${abbreviation}"`, // Exact phrase
-      normalizedAbbr,
-      abbreviation,
-    ];
+    // Map common abbreviations to full law names for better search results
+    const abbreviationMap: {[key: string]: string} = {
+      'GG': 'Grundgesetz für die Bundesrepublik Deutschland',
+      'BGB': 'Bürgerliches Gesetzbuch',
+      'StGB': 'Strafgesetzbuch',
+      'SGB I': 'Sozialgesetzbuch Erstes Buch',
+      'SGB II': 'Sozialgesetzbuch Zweites Buch',
+      'SGB III': 'Sozialgesetzbuch Drittes Buch',
+      'SGB IV': 'Sozialgesetzbuch Viertes Buch',
+      'SGB V': 'Sozialgesetzbuch Fünftes Buch',
+      'SGB VI': 'Sozialgesetzbuch Sechstes Buch',
+      'SGB VII': 'Sozialgesetzbuch Siebtes Buch',
+      'SGB VIII': 'Sozialgesetzbuch Achtes Buch',
+      'SGB IX': 'Sozialgesetzbuch Neuntes Buch',
+      'SGB X': 'Sozialgesetzbuch Zehntes Buch',
+      'SGB XI': 'Sozialgesetzbuch Elftes Buch',
+      'SGB XII': 'Sozialgesetzbuch Zwölftes Buch',
+      'SGB XIII': 'Sozialgesetzbuch Dreizehntes Buch',
+      'SGB XIV': 'Sozialgesetzbuch Vierzehntes Buch',
+    };
+
+    // Build search queries: prioritize full name if we know it
+    const searchQueries: string[] = [];
+
+    // Add full law name if we have a mapping
+    if (abbreviationMap[normalizedAbbr]) {
+      searchQueries.push(`"${abbreviationMap[normalizedAbbr]}"`);
+      searchQueries.push(abbreviationMap[normalizedAbbr]);
+    }
+
+    // Add abbreviation searches
+    searchQueries.push(`"${abbreviation}"`);
+    searchQueries.push(normalizedAbbr);
+    searchQueries.push(abbreviation);
 
     // Try multiple search approaches
     let bestMatch: any = null;

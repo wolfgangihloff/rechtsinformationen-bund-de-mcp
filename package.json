@@ -1,6 +1,6 @@
 {
   "name": "rechtsinformationen",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server for rechtsinformationen.bund.de - Official German Federal Legal Information Portal with semantic and full-text search",
   "main": "dist/index.js",
   "type": "module",
@@ -9,7 +9,10 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "test": "node tests/test-golden.js",
+    "test:generic": "node tests/test-generic-search.js",
     "test:api": "node debug-api.js",
+    "test:all": "npm test && npm run test:generic",
+    "test:quick": "npm run test:generic",
     "setup": "npm install && npm run build && npm test",
     "claude-config": "echo 'Add this to your Claude Desktop config:' && echo '{\"mcpServers\":{\"rechtsinformationen\":{\"command\":\"node\",\"args\":[\"'$(pwd)'/dist/index.js\"]}}}'",
     "check-config": "node -e \"console.log('Config path should be:', require('os').homedir() + '/Library/Application Support/Claude/claude_desktop_config.json')\"",

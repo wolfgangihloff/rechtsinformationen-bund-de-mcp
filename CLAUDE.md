@@ -55,11 +55,53 @@ This is an MCP (Model Context Protocol) server that provides access to the offic
 - Development/Test: `https://testphase.rechtsinformationen.bund.de/v1`
 - Endpoints: `/legislation`, `/case-law`, `/document`
 
-#### URL Handling
-The codebase correctly implements semantic web principles:
-- Work level URLs (abstract): `/v1/legislation/eli/bund/...` 
-- Expression level URLs (concrete): Uses `workExample['@id']` for versioned documents
-- Website URLs: Converts `/v1/legislation/` to `/norms/` for user-friendly links
+#### URL Handling and Data Model Understanding
+
+The rechtsinformationen.bund.de API follows **FRBR (Functional Requirements for Bibliographic Records)** model with three distinct levels:
+
+**1. Work Level (Abstract Concept)**
+- Represents the law as an intellectual creation
+- Example: "Das Grundgesetz" as a whole, independent of versions
+- URL pattern: `/v1/legislation/eli/bund/...` (without date/version)
+
+**2. Expression Level (Concrete Version)**
+- Represents a specific publication or version of the law
+- Contains metadata: legislation date, publication date, effective date, in-force status
+- **Critical for validity questions**: "Is this law still in force?", "When did this become effective?"
+- URL pattern: `/v1/legislation/eli/bund/bgbl-1/2016/s3234/2025-01-01/1/deu`
+- Access via: `workExample['@id']` in API responses
+- **Returns JSON-LD with metadata**
+
+**3. Manifestation Level (Physical/Digital Format)**
+- Represents the format in which the expression is available
+- JSON-LD: `/v1/legislation/eli/...` (machine-readable metadata)
+- HTML: `/norms/eli/...` (human-readable web page)
+- PDF, XML, etc.
+
+**Key Implementation Details**:
+- **For user-facing links**: Convert `/v1/legislation/eli/...` → `/norms/eli/...` (HTML viewer)
+- **For metadata queries**: Use `/v1/legislation/eli/...` (JSON-LD) directly
+- **Metadata available at search result level**:
+  - `legislationDate` - When the law was passed/enacted
+  - `datePublished` - When published in Federal Law Gazette (BGBl)
+  - `workExample['@id']` - URL to the specific versioned document (Expression level)
+- **For detailed validity questions**: Fetch the specific document using `workExample['@id']` or `gesetz_per_eli_abrufen` to access:
+  - `temporalCoverage` - Date range when law is/was in force (if available)
+  - `inForce` - Boolean indicating current validity status (if available)
+  - Full text content and structure
+
+**Example - SGB IX**:
+- **Expression URL** (JSON-LD): `https://testphase.rechtsinformationen.bund.de/v1/legislation/eli/bund/bgbl-1/2016/s3234/2025-01-01/1/deu`
+  - Contains: legislationDate, datePublished, inForce status
+  - Use for: "When did SGB IX become effective?", "Is SGB IX still valid?"
+- **Manifestation URL** (HTML): `https://testphase.rechtsinformationen.bund.de/norms/eli/bund/bgbl-1/2016/s3234/2025-01-01/1/deu`
+  - Contains: Human-readable text of the law
+  - Use for: Reading the actual law text
+
+**Agent Guidance**:
+The MCP server should provide **BOTH** types of information:
+1. **HTML links** (Manifestation) - For users to read the law
+2. **JSON-LD data** (Expression) - For answering metadata questions (dates, validity)
 
 ### Data Structures
 
