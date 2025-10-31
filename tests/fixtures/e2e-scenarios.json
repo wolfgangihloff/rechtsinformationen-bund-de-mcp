@@ -1,0 +1,217 @@
+{
+  "version": "1.0.0",
+  "description": "E2E test scenarios for rechtsinformationen-bund-de-mcp with mock agent",
+  "scenarios": [
+    {
+      "id": "simple_law_lookup_bgb",
+      "category": "simple",
+      "difficulty": "easy",
+      "query": "Was ist das BGB?",
+      "expected": {
+        "max_tool_calls": 2,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["gesetz_per_abkuerzung_abrufen"],
+        "must_include_in_response": ["BGB"],
+        "should_include_in_response": ["Bürgerliches Gesetzbuch"],
+        "must_have_citations": true,
+        "min_citations": 1,
+        "citation_format": "markdown_link"
+      },
+      "tags": ["law-lookup", "abbreviation", "bgb"]
+    },
+    {
+      "id": "simple_law_lookup_stgb",
+      "category": "simple",
+      "difficulty": "easy",
+      "query": "Zeige mir das StGB",
+      "expected": {
+        "max_tool_calls": 2,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["gesetz_per_abkuerzung_abrufen"],
+        "must_include_in_response": ["StGB"],
+        "should_include_in_response": ["Strafgesetzbuch"],
+        "must_have_citations": true,
+        "min_citations": 1,
+        "citation_format": "markdown_link"
+      },
+      "tags": ["law-lookup", "abbreviation", "stgb", "criminal-law"]
+    },
+    {
+      "id": "paragraph_lookup_stgb_242",
+      "category": "paragraph",
+      "difficulty": "medium",
+      "query": "Was regelt § 242 StGB?",
+      "expected": {
+        "max_tool_calls": 3,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "must_include_in_response": ["242", "StGB"],
+        "should_include_in_response": ["Diebstahl"],
+        "must_have_citations": true,
+        "min_citations": 1
+      },
+      "tags": ["paragraph-search", "stgb", "criminal-law", "specific-section"]
+    },
+    {
+      "id": "complex_legal_question_mietrecht",
+      "category": "complex",
+      "difficulty": "medium",
+      "query": "Welche Rechte habe ich bei einer Mieterhöhung?",
+      "expected": {
+        "max_tool_calls": 4,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "must_include_in_response": ["Mieterhöhung"],
+        "should_include_in_response": ["§ 558", "Kappungsgrenze", "ortsübliche Vergleichsmiete", "BGB"],
+        "must_have_citations": true,
+        "min_citations": 1
+      },
+      "tags": ["complex-question", "rental-law", "bgb", "tenant-rights"]
+    },
+    {
+      "id": "court_decision_dashcam",
+      "category": "case-law",
+      "difficulty": "hard",
+      "query": "Sind Dashcam-Aufnahmen als Beweismittel erlaubt?",
+      "expected": {
+        "max_tool_calls": 4,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["rechtsprechung_suchen", "deutsche_gesetze_suchen"],
+        "must_have_citations": false,
+        "note": "Dashcam ruling may not be in database - tests graceful handling",
+        "expected_outcome": "partial_success_or_no_results"
+      },
+      "tags": ["case-law", "court-decision", "evidence-law", "data-protection", "known-limitation"]
+    },
+    {
+      "id": "employment_law_kuendigung",
+      "category": "complex",
+      "difficulty": "medium",
+      "query": "Was muss ich bei einer Kündigung beachten?",
+      "expected": {
+        "max_tool_calls": 4,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "must_include_in_response": ["Kündigung"],
+        "should_include_in_response": ["KSchG", "Kündigungsschutz", "Kündigungsfrist"],
+        "must_have_citations": true,
+        "min_citations": 1
+      },
+      "tags": ["employment-law", "termination", "kschg"]
+    },
+    {
+      "id": "social_law_sgb_xii",
+      "category": "social-law",
+      "difficulty": "medium",
+      "query": "Was regelt SGB XII?",
+      "expected": {
+        "max_tool_calls": 3,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["gesetz_per_abkuerzung_abrufen", "deutsche_gesetze_suchen"],
+        "must_include_in_response": ["SGB"],
+        "should_include_in_response": ["Sozialgesetzbuch", "Sozialhilfe", "Grundsicherung", "XII"],
+        "must_have_citations": true,
+        "min_citations": 1
+      },
+      "tags": ["social-law", "sgb", "welfare"]
+    },
+    {
+      "id": "english_query_employee_rights",
+      "category": "translation",
+      "difficulty": "hard",
+      "query": "What are the German laws regarding employee rights?",
+      "expected": {
+        "max_tool_calls": 4,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "must_have_citations": false,
+        "note": "English query translation may not find results - tests graceful handling",
+        "expected_outcome": "partial_success_or_no_results"
+      },
+      "tags": ["english-translation", "employment-law", "translation", "known-limitation"]
+    },
+    {
+      "id": "multiple_laws_data_protection",
+      "category": "multi-law",
+      "difficulty": "hard",
+      "query": "Welche Gesetze regeln den Datenschutz in Deutschland?",
+      "expected": {
+        "max_tool_calls": 5,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "should_include_in_response": ["DSGVO", "BDSG", "Datenschutz"],
+        "must_have_citations": true,
+        "min_citations": 2
+      },
+      "tags": ["multi-law", "data-protection", "gdpr"]
+    },
+    {
+      "id": "grundgesetz_artikel_1",
+      "category": "constitutional",
+      "difficulty": "hard",
+      "query": "Was besagt Artikel 1 des Grundgesetzes?",
+      "expected": {
+        "max_tool_calls": 3,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["gesetz_per_abkuerzung_abrufen"],
+        "should_include_in_response": ["Grundgesetz", "Artikel 1", "Würde"],
+        "must_have_citations": false,
+        "note": "GG is NOT in database - agent should handle gracefully",
+        "expected_outcome": "partial_success_or_no_results"
+      },
+      "tags": ["constitutional-law", "grundgesetz", "known-limitation", "database-gap"]
+    },
+    {
+      "id": "sgb_i_lookup",
+      "category": "social-law",
+      "difficulty": "hard",
+      "query": "Finde mir das SGB I",
+      "expected": {
+        "max_tool_calls": 3,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["gesetz_per_abkuerzung_abrufen", "deutsche_gesetze_suchen"],
+        "should_include_in_response": ["SGB"],
+        "must_have_citations": false,
+        "note": "SGB I is NOT in database - agent should handle gracefully",
+        "expected_outcome": "partial_success_or_no_results"
+      },
+      "tags": ["social-law", "sgb", "known-limitation", "database-gap"]
+    },
+    {
+      "id": "amendment_law_search",
+      "category": "amendment",
+      "difficulty": "hard",
+      "query": "Welche Änderungen gab es 2021 im SGB X?",
+      "expected": {
+        "max_tool_calls": 5,
+        "must_use_tools": ["intelligente_rechtssuche"],
+        "optional_tools": ["deutsche_gesetze_suchen"],
+        "should_include_in_response": ["SGB X", "Änderung", "2021"],
+        "must_have_citations": true,
+        "min_citations": 1,
+        "note": "Amendment laws are tricky - may require multiple searches"
+      },
+      "tags": ["amendment-law", "sgb", "temporal-search", "complex"]
+    }
+  ],
+  "metadata": {
+    "total_scenarios": 12,
+    "difficulty_distribution": {
+      "easy": 2,
+      "medium": 7,
+      "hard": 3
+    },
+    "category_distribution": {
+      "simple": 2,
+      "paragraph": 1,
+      "complex": 2,
+      "case-law": 1,
+      "social-law": 2,
+      "translation": 1,
+      "multi-law": 1,
+      "constitutional": 1,
+      "amendment": 1
+    },
+    "notes": "Scenarios include 2 with known database limitations (GG, SGB I) to test graceful failure handling"
+  }
+}

@@ -60,7 +60,7 @@ class RechtsinformationenBundDeMCPServer {
     this.server = new Server(
       {
         name: 'rechtsinformationen',
-        version: '1.2.0',
+        version: '1.4.0',
       },
       {
         capabilities: {
@@ -97,6 +97,12 @@ These URLs work directly in browsers and API calls.
 ✓ When you need legislation-only results (excludes case law)
 ✓ When searching for specific law abbreviations (BEEG, BGB, SGB)
 
+**⚠️ DATABASE COVERAGE LIMITATIONS:**
+• **Grundgesetz (GG)**: NOT in database - only laws referencing GG available
+• **SGB I-VIII**: NOT in database - SGB IX-XIV available, earlier books missing
+• **Historic laws**: Limited coverage, focus on current legislation post-2000
+• If a law is not found, it may not be in the testphase database yet
+
 **Limitations:**
 ⚠️ Date filters (temporalCoverageFrom/To) are unreliable - they may exclude relevant results
 ⚠️ For amendment questions, DON'T use date filters - search broadly instead
@@ -126,8 +132,8 @@ For legislation-only → Use this tool`,
                 },
                 limit: {
                   type: 'number',
-                  description: 'Maximum number of results to return (default: 10, API max: 100)',
-                  default: 10,
+                  description: 'Maximum number of results to return (default: 5, API max: 100)',
+                  default: 5,
                 },
               },
               required: ['searchTerm'],
@@ -198,8 +204,8 @@ For court-specific searches → Use this tool`,
                 },
                 limit: {
                   type: 'number',
-                  description: 'Maximum number of results to return (default: 10, API max: 100)',
-                  default: 10,
+                  description: 'Maximum number of results to return (default: 5, API max: 100)',
+                  default: 5,
                 },
               },
               required: ['searchTerm'],
@@ -265,84 +271,6 @@ Search first → Get results → Use this tool for full text`,
             },
           },
           {
-            name: 'alle_rechtsdokumente_suchen',
-            description: `🔍 **SECONDARY TOOL** - Umfassende Suche (Gesetze + Rechtsprechung)
-
-**What this tool searches:**
-• Combined search across ALL documents at rechtsinformationen.bund.de
-• Both legislation (Gesetze) AND case law (Rechtsprechung)
-• Use when you need broad coverage across all document types
-
-**URL Construction:**
-Results contain mixed URLs:
-• Legislation: /v1/legislation/eli/bund/...
-• Case Law: /v1/case-law/ecli/de/{court}/...
-
-All URLs work directly in browsers and API calls.
-
-**When to use:**
-✓ Follow-up searches after intelligente_rechtssuche
-✓ When you want both legislation AND case law results
-✓ When using documentKind filter to switch between types
-✓ When you've exhausted other specialized tools
-
-**Filtering Options:**
-• documentKind: "legislation" (only laws) or "case-law" (only court decisions)
-• court: Filter by court abbreviation (only applies to case-law results)
-• dateFrom/To: Date range filters (ISO format)
-
-**Limitations:**
-⚠️ Date filters are unreliable - may exclude relevant results
-⚠️ Less precise than specialized tools (deutsche_gesetze_suchen, rechtsprechung_suchen)
-⚠️ Results are mixed, harder to navigate than type-specific searches
-
-**Parameters:**
-• searchTerm: Keywords or legal references (required)
-• documentKind: "legislation" or "case-law" (optional)
-• dateFrom/To: ISO date filters (optional, use with caution)
-• court: Court abbreviation for case-law filtering (optional)
-• limit: Max results, default 10, API max 100
-
-**Usage Priority:**
-For initial queries → Use intelligente_rechtssuche first
-For type-specific searches → Use deutsche_gesetze_suchen or rechtsprechung_suchen
-For broad mixed results → Use this tool
-
-**Important:** Exhaust ALL MCP tools before considering external web search.`,
-            inputSchema: {
-              type: 'object',
-              properties: {
-                searchTerm: {
-                  type: 'string',
-                  description: 'Search term for finding documents across all types',
-                },
-                documentKind: {
-                  type: 'string',
-                  description: 'Filter by document type: "legislation" (only laws) or "case-law" (only court decisions)',
-                  enum: ['case-law', 'legislation'],
-                },
-                dateFrom: {
-                  type: 'string',
-                  description: 'Start date filter (ISO 8601 format: YYYY-MM-DD) - WARNING: May exclude relevant results',
-                },
-                dateTo: {
-                  type: 'string',
-                  description: 'End date filter (ISO 8601 format: YYYY-MM-DD) - WARNING: May exclude relevant results',
-                },
-                court: {
-                  type: 'string',
-                  description: 'Filter by court abbreviation (only applies to case-law results, e.g., BGH, BVerfG, BAG)',
-                },
-                limit: {
-                  type: 'number',
-                  description: 'Maximum number of results to return (default: 10, API max: 100)',
-                  default: 10,
-                },
-              },
-              required: ['searchTerm'],
-            },
-          },
-          {
             name: 'intelligente_rechtssuche',
             description: `🧠 **PRIMARY TOOL** ⭐ ALWAYS USE THIS FIRST for ANY German legal question ⭐
 
@@ -350,6 +278,13 @@ For broad mixed results → Use this tool
 • Full-text search across rechtsinformationen.bund.de
 • Both legislation (Gesetze) AND case law (Rechtsprechung)
 • Intelligent query enhancement with misconception correction
+
+**⚠️ DATABASE COVERAGE LIMITATIONS:**
+• **Grundgesetz (GG)**: NOT in database - only laws referencing GG are available
+• **SGB I-VIII**: NOT in database - SGB IX-XIV available, earlier books missing
+• **Historic laws**: Limited coverage, focus on current legislation post-2000
+• **Amendments**: Newer amendment laws well-covered, older may be missing
+• If a law is not found, it may not be in the testphase database yet
 
 **Intelligent Features (Automatic):**
 ✓ English → German translation (e.g., "employee rights" → "Arbeitnehmerrechte")
@@ -423,7 +358,7 @@ Case law:
 **Parameters:**
 • query: Your search query in German or English (required)
 • threshold: Fuzzy match threshold 0.0-1.0 (default: 0.3, lower = more results)
-• limit: Max results (default: 10, API max: 100)
+• limit: Max results (default: 5, API max: 100)
 
 **Usage Pattern:**
 1. Start here for ALL legal questions
@@ -445,81 +380,11 @@ Case law:
                 },
                 limit: {
                   type: 'number',
-                  description: 'Maximum number of results to return (default: 10, API max: 100)',
-                  default: 10,
+                  description: 'Maximum number of results to return (default: 5, API max: 100)',
+                  default: 5,
                 },
               },
               required: ['query'],
-            },
-          },
-          {
-            name: 'gesetz_per_eli_abrufen',
-            description: `🏛️ **RETRIEVAL TOOL** - Gesetz per ELI-Kennung abrufen
-
-**What this tool does:**
-• Retrieves specific legislation by ELI (European Legislation Identifier)
-• Direct access to a known law document
-• Alternative to dokument_details_abrufen specifically for legislation
-
-**ELI Format:**
-ELI identifiers follow this structure:
-/eli/{jurisdiction}/{agent}/{year}/{naturalIdentifier}/{pointInTime}/{version}/{language}
-
-Example: /eli/bund/bgbl-1/2006/s2748/2025-05-01/1/deu
-• bund = federal legislation
-• bgbl-1 = Federal Law Gazette I
-• 2006 = publication year
-• s2748 = page number
-• 2025-05-01 = point in time (version date)
-• 1 = version number
-• deu = German language
-
-**URL Construction:**
-This tool constructs the full API URL:
-https://testphase.rechtsinformationen.bund.de/v1/legislation/eli/bund/...
-
-The URL works directly in browsers and API calls.
-
-**When to use:**
-✓ When you have a complete ELI identifier from search results
-✓ When you know the exact ELI of a law (e.g., from citation)
-✓ When you need a specific version/date of legislation
-
-**When NOT to use:**
-✗ For initial searches (use intelligente_rechtssuche instead)
-✗ When you only have a law name (use deutsche_gesetze_suchen)
-✗ For court decisions (use rechtsprechung_suchen or ECLI instead)
-✗ When you don't have the complete ELI path
-
-**Limitations:**
-⚠️ Only works with legislation (not case law)
-⚠️ Requires complete, correctly formatted ELI
-⚠️ Historical versions may not be available for all laws
-⚠️ Only covers federal legislation (Bundesgesetze)
-
-**Parameters:**
-• eli: Complete ELI path (required)
-• format: "json" (default), "html", or "xml" (optional)
-
-**Usage Priority:**
-Search first → Get ELI from results → Use this tool for retrieval
-
-**Note:** For most use cases, dokument_details_abrufen is more flexible as it accepts various ID formats.`,
-            inputSchema: {
-              type: 'object',
-              properties: {
-                eli: {
-                  type: 'string',
-                  description: 'European Legislation Identifier (ELI) in format: /eli/bund/bgbl-1/YYYY/sXXXX/YYYY-MM-DD/V/deu or eli/bund/bgbl-1/...',
-                },
-                format: {
-                  type: 'string',
-                  description: 'Response format: "json" (default, structured data), "html" (readable format), or "xml" (raw format)',
-                  enum: ['html', 'xml', 'json'],
-                  default: 'json',
-                },
-              },
-              required: ['eli'],
             },
           },
           {
@@ -532,18 +397,20 @@ Search first → Get ELI from results → Use this tool for retrieval
 • Returns the current version of the law with full metadata
 • Standard legal research pattern in Germany
 
-**Supported Abbreviations:**
+**⚠️ DATABASE COVERAGE LIMITATIONS:**
+• **Grundgesetz (GG)**: NOT in database - lookup will fail or return wrong law
+• **SGB I-VIII**: NOT in database - SGB IX-XIV available, earlier books missing
+• **Historic laws**: Limited coverage, focus on current legislation post-2000
+• If abbreviation lookup fails, the law may not be in the testphase database
+
+**Supported Abbreviations (if in database):**
 Common German federal laws (examples):
-• SGB I, SGB II, SGB III, SGB IV, SGB V, SGB VI, SGB VII, SGB VIII, SGB IX, SGB X, SGB XI, SGB XII
-• BGB (Bürgerliches Gesetzbuch)
-• StGB (Strafgesetzbuch)
-• GG (Grundgesetz)
-• AufenthG (Aufenthaltsgesetz)
-• BetrVG (Betriebsverfassungsgesetz)
-• KSchG (Kündigungsschutzgesetz)
-• BEEG (Bundeselterngeld- und Elternzeitgesetz)
-• BUrlG (Bundesurlaubsgesetz)
-• ArbZG (Arbeitszeitgesetz)
+• SGB IX, SGB X, SGB XI, SGB XII, SGB XIV (✅ Available)
+• SGB I-VIII (❌ NOT Available)
+• BGB (Bürgerliches Gesetzbuch) (✅ Available)
+• StGB (Strafgesetzbuch) (✅ Available)
+• GG (Grundgesetz) (❌ NOT Available)
+• AufenthG, BetrVG, KSchG, BEEG, BUrlG, ArbZG (Check availability)
 • And many more...
 
 **When to use:**
@@ -587,56 +454,6 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
               required: ['abbreviation'],
             },
           },
-          {
-            name: 'gesetz_inhaltsverzeichnis_abrufen',
-            description: `📑 **TABLE OF CONTENTS TOOL** - Inhaltsverzeichnis eines Gesetzes abrufen
-
-**What this tool does:**
-• Retrieves the complete table of contents (TOC) for a specific law
-• Shows all chapters, sections, and paragraph structure
-• Enables navigation through complex legal documents
-• Useful for understanding law organization
-
-**When to use:**
-✓ After finding a law (via search or abbreviation lookup)
-✓ To understand the structure of a law
-✓ To find specific sections or chapters
-✓ To see all paragraphs (§) in a law
-
-**When NOT to use:**
-✗ For initial searches (use intelligente_rechtssuche instead)
-✗ When you don't have a law identifier yet
-
-**Parameters:**
-• lawId: Document ID from search results (required)
-  Can be: ELI identifier, document number, or @id from search results
-  Examples:
-  - "BJNR010300976" (document number for SGB I)
-  - "/v1/legislation/eli/bund/bgbl-1/1976/s1013/..."
-  - Full URL from search results
-
-**Returns:**
-• Hierarchical table of contents
-• Chapter and section names
-• Paragraph (§) numbers and titles
-• Direct links to specific sections
-
-**Example Usage:**
-Input: { lawId: "BJNR010300976" }
-Output: Table of contents for SGB I with all chapters and paragraphs
-
-**Note:** Not all laws may have structured table of contents available in the API.`,
-            inputSchema: {
-              type: 'object',
-              properties: {
-                lawId: {
-                  type: 'string',
-                  description: 'Law document ID, ELI identifier, or full URL from search results (e.g., "BJNR010300976" or "/v1/legislation/eli/...")',
-                },
-              },
-              required: ['lawId'],
-            },
-          },
         ],
       };
     });
@@ -652,16 +469,10 @@ Output: Table of contents for SGB I with all chapters and paragraphs
             return await this.searchCaseLaw(args);
           case 'dokument_details_abrufen':
             return await this.getDocumentDetails(args);
-          case 'alle_rechtsdokumente_suchen':
-            return await this.searchAllDocuments(args);
           case 'intelligente_rechtssuche':
             return await this.intelligentLegalSearch(args);
-          case 'gesetz_per_eli_abrufen':
-            return await this.getLegislationByEli(args);
           case 'gesetz_per_abkuerzung_abrufen':
             return await this.getLawByAbbreviation(args);
-          case 'gesetz_inhaltsverzeichnis_abrufen':
-            return await this.getLawTableOfContents(args);
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
@@ -680,7 +491,7 @@ Output: Table of contents for SGB I with all chapters and paragraphs
   }
 
   private async searchLegislation(args: any) {
-    const { searchTerm, temporalCoverageFrom, temporalCoverageTo, limit = 10 } = args;
+    const { searchTerm, temporalCoverageFrom, temporalCoverageTo, limit = 5 } = args;
 
     // Convert limit to number if it's a string (for model compatibility)
     const numericLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -704,7 +515,7 @@ Output: Table of contents for SGB I with all chapters and paragraphs
   }
 
   private async searchCaseLaw(args: any) {
-    const { searchTerm, court, dateFrom, dateTo, documentType, limit = 10 } = args;
+    const { searchTerm, court, dateFrom, dateTo, documentType, limit = 5 } = args;
 
     // Convert limit to number if it's a string (for model compatibility)
     const numericLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
@@ -819,103 +630,8 @@ Output: Table of contents for SGB I with all chapters and paragraphs
     }
   }
 
-  private async getLegislationByEli(args: any) {
-    const { eli, format = 'json' } = args;
-    
-    const params = new URLSearchParams();
-    params.append('eli', eli);
-    
-    const headers: any = {};
-    if (format === 'html') headers['Accept'] = 'text/html';
-    if (format === 'xml') headers['Accept'] = 'application/xml';
-
-    const response = await axios.get(`${BASE_URL}/legislation`, { params, headers });
-    
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Legislation with ELI ${eli}:\n\n${this.formatLegislationDetails(response.data, format)}`,
-        },
-      ],
-    };
-  }
-
-  private async searchAllDocuments(args: any) {
-    const { searchTerm, documentKind, dateFrom, dateTo, court, limit = 10 } = args;
-
-    // Convert limit to number if it's a string (for model compatibility)
-    const numericLimit = typeof limit === 'string' ? parseInt(limit, 10) : limit;
-    
-    // Enhanced search logic for specific legal questions
-    let enhancedSearchTerms = [searchTerm];
-    
-    // Special handling for Jobcenter/Meldeversäumnis questions
-    if (searchTerm.toLowerCase().includes('jobcenter') || 
-        searchTerm.toLowerCase().includes('termin') ||
-        searchTerm.toLowerCase().includes('melde')) {
-      enhancedSearchTerms = [
-        'Meldeversäumnis',
-        '§ 32 SGB II',
-        'SGB II 32',
-        searchTerm
-      ];
-    }
-    
-    // Try multiple search approaches
-    let allResults: any[] = [];
-    
-    for (const term of enhancedSearchTerms) {
-      const params = new URLSearchParams();
-      params.append('searchTerm', term);
-      if (documentKind) params.append('documentKind', documentKind);
-      if (dateFrom) params.append('dateFrom', dateFrom);
-      if (dateTo) params.append('dateTo', dateTo);
-      if (court) params.append('court', court);
-      params.append('limit', Math.ceil(numericLimit / enhancedSearchTerms.length).toString());
-
-      try {
-        const response = await axios.get(`${BASE_URL}/document`, { params });
-        if (response.data.member) {
-          allResults.push(...response.data.member);
-        }
-      } catch (error) {
-        // Continue with other search terms if one fails
-      }
-    }
-    
-    // Remove duplicates and prioritize results with legal references
-    const uniqueResults = allResults.filter((item, index, self) => 
-      index === self.findIndex(other => other.item?.documentNumber === item.item?.documentNumber)
-    );
-    
-    // Sort by relevance (prioritize results with § references)
-    uniqueResults.sort((a, b) => {
-      const aContent = (a.textMatches || []).map((m: any) => m.text).join(' ');
-      const bContent = (b.textMatches || []).map((m: any) => m.text).join(' ');
-      const aHasLegalRef = /§\s*\d+.*SGB/i.test(aContent);
-      const bHasLegalRef = /§\s*\d+.*SGB/i.test(bContent);
-      
-      if (aHasLegalRef && !bHasLegalRef) return -1;
-      if (!aHasLegalRef && bHasLegalRef) return 1;
-      return 0;
-    });
-    
-    const limitedResults = uniqueResults.slice(0, numericLimit);
-    const mockResponse = { member: limitedResults };
-    
-    return {
-      content: [
-        {
-          type: 'text',
-          text: `Found ${limitedResults.length} documents matching "${searchTerm}":\n\n${this.formatDocumentResults(mockResponse)}`,
-        },
-      ],
-    };
-  }
-
   private async intelligentLegalSearch(args: any) {
-    const { query, threshold = 0.3, limit = 10 } = args;
+    const { query, threshold = 0.3, limit = 5 } = args;
 
     // Convert parameters to correct types if they're strings (for model compatibility)
     const numericThreshold = typeof threshold === 'string' ? parseFloat(threshold) : threshold;
@@ -1073,8 +789,8 @@ Output: Table of contents for SGB I with all chapters and paragraphs
     // IMPROVED: Better fallback and minimum score filtering
     let finalResults: any[];
     if (semanticResults.length > 0) {
-      // Filter out very poor matches (score > 0.9 means very different)
-      const goodMatches = semanticResults.filter(r => (r.score || 0) <= 0.9);
+      // Filter out poor matches (score > 0.7 means not relevant enough)
+      const goodMatches = semanticResults.filter(r => (r.score || 0) <= 0.7);
 
       if (goodMatches.length > 0) {
         finalResults = goodMatches.slice(0, numericLimit);
@@ -1912,12 +1628,23 @@ ${JSON.stringify(data, null, 2)}`;
       const item = result.item;
       let score = 0;
 
-      // Check abbreviation field (highest priority)
+      // Check if title matches our mapped full name (HIGHEST PRIORITY)
+      if (abbreviationMap[normalizedAbbr]) {
+        const expectedTitle = abbreviationMap[normalizedAbbr].toUpperCase();
+        const actualTitle = (item.headline || item.name || '').toUpperCase();
+
+        // Exact or very close title match - this is our law!
+        if (actualTitle === expectedTitle || actualTitle.includes(expectedTitle)) {
+          score += 2000; // HIGHEST priority - full title match
+        }
+      }
+
+      // Check abbreviation field (high priority)
       if (item.abbreviation) {
         const itemAbbr = item.abbreviation.trim().toUpperCase();
         const searchAbbr = normalizedAbbr.trim();
 
-        // Exact match (highest priority)
+        // Exact match (high priority)
         if (itemAbbr === searchAbbr) {
           score += 1000;
         }
@@ -2043,89 +1770,6 @@ ${JSON.stringify(data, null, 2)}`;
     };
   }
 
-  private async getLawTableOfContents(args: any) {
-    const { lawId } = args;
-
-    // Handle different ID formats
-    let apiPath = lawId;
-    if (lawId.startsWith('http')) {
-      const url = new URL(lawId);
-      apiPath = url.pathname;
-    } else if (!lawId.startsWith('/v1/')) {
-      // Assume it's a document number, try to find it first
-      try {
-        const searchResponse = await axios.get(`${BASE_URL}/legislation`, {
-          params: { searchTerm: lawId, size: 5 }
-        });
-
-        if (searchResponse.data.member && searchResponse.data.member.length > 0) {
-          const firstMatch = searchResponse.data.member[0].item;
-          apiPath = firstMatch.workExample?.['@id'] || firstMatch['@id'];
-        } else {
-          return {
-            content: [{
-              type: 'text',
-              text: `❌ Could not find law with ID "${lawId}"\n\n💡 **Suggestion:** Use gesetz_per_abkuerzung_abrufen or deutsche_gesetze_suchen to find the law first.`
-            }]
-          };
-        }
-      } catch (error) {
-        return {
-          content: [{
-            type: 'text',
-            text: `❌ Error looking up law ID "${lawId}": ${error instanceof Error ? error.message : 'Unknown error'}`
-          }]
-        };
-      }
-    }
-
-    // Fetch the full document
-    try {
-      const fullUrl = apiPath.startsWith('/v1/')
-        ? `https://testphase.rechtsinformationen.bund.de${apiPath}`
-        : `${BASE_URL}${apiPath}`;
-
-      const response = await axios.get(fullUrl);
-      const lawData = response.data;
-
-      // Extract table of contents if available
-      // The API may provide structured data in different formats
-      let tocText = '📑 **TABLE OF CONTENTS**\n\n';
-
-      if (lawData.outline) {
-        tocText += this.formatOutline(lawData.outline);
-      } else if (lawData.hasPart) {
-        tocText += this.formatHasPart(lawData.hasPart);
-      } else {
-        // Fallback: try to extract from text content
-        tocText += '⚠️ No structured table of contents available in API response.\n\n';
-        tocText += 'The API returned the full document but without explicit TOC structure.\n';
-        tocText += 'You may need to use dokument_details_abrufen with format="html" to see the full structure.\n\n';
-        tocText += `**Document Info:**\n`;
-        tocText += `• Title: ${lawData.headline || lawData.name || 'N/A'}\n`;
-        tocText += `• Type: ${lawData['@type'] || 'N/A'}\n`;
-        tocText += `• ELI: ${lawData.eli || 'N/A'}\n`;
-      }
-
-      return {
-        content: [{
-          type: 'text',
-          text: tocText
-        }]
-      };
-    } catch (error: any) {
-      if (error.response?.status === 403) {
-        return {
-          content: [{
-            type: 'text',
-            text: `❌ Access forbidden (403) for document: ${lawId}\n\n💡 **Alternative:**\nThe table of contents may not be accessible via API. Try:\n1. Use the HTML URL in a browser\n2. Use deutsche_gesetze_suchen to search for specific sections\n3. Use intelligente_rechtssuche to find relevant paragraphs`
-          }]
-        };
-      }
-      throw error;
-    }
-  }
-
   private classifyLawType(law: any): string {
     const title = (law.headline || law.name || '').toLowerCase();
     const abbr = (law.abbreviation || '').toUpperCase();
@@ -2138,23 +1782,6 @@ ${JSON.stringify(data, null, 2)}`;
     if (title.includes('gesetz')) return 'Bundesgesetz (Federal Law)';
 
     return law['@type'] || 'Legislation';
-  }
-
-  private formatOutline(outline: string): string {
-    // Simple formatting of outline text
-    return outline.split('\n').map(line => `  ${line}`).join('\n');
-  }
-
-  private formatHasPart(hasPart: any[]): string {
-    // Format structured parts
-    let result = '';
-    hasPart.forEach((part, index) => {
-      result += `${index + 1}. ${part.name || part.headline || 'Section'}\n`;
-      if (part.hasPart) {
-        result += this.formatHasPart(part.hasPart).split('\n').map(l => `  ${l}`).join('\n') + '\n';
-      }
-    });
-    return result;
   }
 
   async run() {

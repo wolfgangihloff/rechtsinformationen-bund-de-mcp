@@ -241,11 +241,26 @@ const testSuite = [
     args: { query: 'Grundgesetz Artikel 1', limit: 10 },
     validate: (result) => {
       const text = result.content[0].text;
+      const links = text.match(/\[([^\]]+)\]\(([^)]+)\)/g) || [];
+
+      // Check if ANY link contains "Grundgesetz für die Bundesrepublik Deutschland" (the actual document)
+      const hasActualGG = links.some(link => {
+        const linkText = link.match(/\[([^\]]+)\]/)?.[1] || '';
+        // Must have "Grundgesetz" AND "Bundesrepublik Deutschland" (not just laws mentioning GG)
+        return linkText.includes('Grundgesetz') &&
+               linkText.includes('Bundesrepublik Deutschland') &&
+               !linkText.includes('Änderung') && // Not amendment laws
+               !linkText.includes('Ausführung'); // Not implementation laws
+      });
+
       const checks = {
+        'Contains actual GG document (not just mentions)': hasActualGG,
         'Contains "Grundgesetz"': text.includes('Grundgesetz'),
-        'Contains "Artikel 1" or "Art. 1"': text.includes('Artikel 1') || text.includes('Art. 1') || text.includes('Art 1'),
-        'Has markdown links': (text.match(/\[.*?\]\(https?:\/\/.*?\)/g) || []).length > 0,
-        'Multiple results': (text.match(/\[.*?\]\(https?:\/\/.*?\)/g) || []).length >= 1,
+        'Has markdown links': links.length > 0,
+        'Links contain full document names': links.some(link => {
+          const linkText = link.match(/\[([^\]]+)\]/)?.[1] || '';
+          return linkText.length > 20; // Meaningful document names
+        }),
       };
       return checks;
     },
