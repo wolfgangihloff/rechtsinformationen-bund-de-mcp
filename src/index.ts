@@ -602,6 +602,26 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
         ],
       };
     } catch (error: any) {
+      if (error.response?.status === 404) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `❌ Document not found (404) for: ${documentId}
+
+⚠️ **This document path is not available in the testphase database.**
+
+💡 **What you can do instead:**
+1. Search for the document first using intelligente_rechtssuche or deutsche_gesetze_suchen
+2. Use the \`@id\` URLs returned from search results with this tool
+3. Not all documents are accessible yet in the testphase API
+
+**API Path attempted:** ${apiPath.startsWith('/v1/') ? `https://testphase.rechtsinformationen.bund.de${apiPath}` : `${BASE_URL}${apiPath}`}`,
+            },
+          ],
+        };
+      }
+
       if (error.response?.status === 403) {
         // 403 Forbidden - provide helpful guidance
         return {
@@ -1609,9 +1629,9 @@ ${JSON.stringify(data, null, 2)}`;
       }
     }
 
-    // Remove duplicates
+    // Remove duplicates — use @id (always populated) not documentNumber (often null for legislation)
     const uniqueResults = allResults.filter((item, index, self) =>
-      index === self.findIndex(other => other.item?.documentNumber === item.item?.documentNumber)
+      index === self.findIndex(other => other.item?.['@id'] === item.item?.['@id'])
     );
 
     if (uniqueResults.length === 0) {
