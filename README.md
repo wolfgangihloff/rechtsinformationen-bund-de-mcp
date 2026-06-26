@@ -495,6 +495,18 @@ debug/
 ├── test-*.js                # API debugging tools
 ```
 
+## 🌟 Built with This MCP
+
+Real-world tools and skills powered by this server:
+
+| Project | Description |
+|---|---|
+| [deutsches-recht-mit-claude](https://github.com/waldo-van-der-code/deutsches-recht-mit-claude) | Claude Code skill that fetches live statutory text before citing it — prevents hallucinated or paraphrased law citations. Built as a `/widerruf` Widerrufsrecht checker and general legal research skill. |
+
+> **Note on data completeness:** The Neuris dataset underlying this API is not yet complete relative to gesetze-im-internet.de. For production use cases, consider validating coverage and falling back to [gesetze-im-internet.de](https://www.gesetze-im-internet.de/) where needed.
+
+*Built something with this MCP? Open a PR to add it here.*
+
 ## 🤝 Contributing
 
 Contributions welcome! Areas for improvement:
