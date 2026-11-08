@@ -527,8 +527,9 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
     if (dateTo) params.append('dateTo', dateTo);
     if (documentType) params.append('type', documentType);
     params.append('limit', numericLimit.toString());
+    params.append('size', Math.min(numericLimit, 100).toString());
 
-    const response = await axios.get(`${BASE_URL}/case-law`, { params });
+    const response = await axios.get(`${BASE_URL}/rechtsprechung`, { params });
     
     return {
       content: [
@@ -558,17 +559,17 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
         apiPath = url.pathname.replace('/norms/', '/v1/legislation/');
       } else if (url.pathname.startsWith('/case-law/')) {
         // Already correct API path format
-        apiPath = url.pathname;
+        apiPath = url.pathname.replace('/case-law/', '/rechtsprechung/');
       } else if (url.pathname.startsWith('/v1/')) {
         // Already an API path
-        apiPath = url.pathname;
+        apiPath = url.pathname.replace('/case-law/', '/rechtsprechung/');
       } else if (url.pathname.startsWith('/ecli/')) {
         // ECLI URLs need to be converted to /v1/case-law/ format
         // But we don't have enough info, so return helpful error
         throw new Error('ECLI URLs not directly supported. Please use the document number or search for the case first.');
       } else {
         // Use the path as-is and hope for the best
-        apiPath = url.pathname;
+        apiPath = url.pathname.replace('/case-law/', '/rechtsprechung/');
       }
     } else if (!documentId.startsWith('/v1/')) {
       // If it's not a URL and doesn't start with /v1/, assume it's a document number
@@ -577,7 +578,7 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
         apiPath = `/v1/legislation/${documentId}`;
       } else {
         // Assume it's a case law document number
-        apiPath = `/v1/case-law/${documentId}`;
+        apiPath = `/v1/rechtsprechung/${documentId}`;
       }
     }
 
@@ -1204,9 +1205,9 @@ For content search within laws → Use intelligente_rechtssuche or deutsche_gese
 
     // For case law - use ECLI format or document path
     if (doc['@type'] === 'CaseLaw' || doc.ecli) {
-      if (doc.ecli) {
-        // ECLI format: convert to /case-law/ecli/... path
-        return `https://testphase.rechtsinformationen.bund.de/case-law/ecli/${doc.ecli}`;
+      if (doc.documentNumber) {
+        // The API's HTML rendering is the only stable public link (/case-law/ecli/... now 404s)
+        return `https://testphase.rechtsinformationen.bund.de/v1/rechtsprechung/${doc.documentNumber}.html`;
       }
       // Standard document path
       const documentUrl = doc['@id'] || '';
